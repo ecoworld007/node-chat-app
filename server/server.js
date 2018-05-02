@@ -12,6 +12,22 @@ let io = socketIO(server);
 
 io.on('connection', (socket) => {
     console.log('new client connected');
+    socket.emit('newEmail',{
+        from: 'mike@example.com',
+        text: 'whats up?',
+        createdAt: 123
+    });
+    socket.on('createMessage', (newMessage) => {
+        console.log('new message received: ',newMessage);
+    });
+    socket.emit('newMessage',{
+        from: 'mike@example.com',
+        text: 'lunch after 2:00PM',
+        createdAt: 123
+    });
+    socket.on('createEmail', (newEmail) => {
+        console.log('new email received: ',newEmail);
+    });
     socket.on('disconnect', () => {
         console.log('client disconnected');
     });
