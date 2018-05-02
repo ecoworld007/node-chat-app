@@ -19,11 +19,11 @@ io.on('connection', (socket) => {
     });
     socket.on('createMessage', (newMessage) => {
         console.log('new message received: ',newMessage);
-    });
-    socket.emit('newMessage',{
-        from: 'mike@example.com',
-        text: 'lunch after 2:00PM',
-        createdAt: 123
+        io.emit('newMessage',{
+            from: newMessage.from,
+            text: newMessage.text,
+            createdAt: new Date().getTime()
+        });
     });
     socket.on('createEmail', (newEmail) => {
         console.log('new email received: ',newEmail);
