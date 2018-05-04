@@ -10,7 +10,6 @@ const PORT = process.env.PORT || 3000;
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
-
 io.on('connection', (socket) => {
     console.log('new client connected');
     socket.emit('newEmail',generateMessage('mike@example.com', 'whats up?'));
@@ -20,9 +19,10 @@ io.on('connection', (socket) => {
         createdAt: new Date().getTime()
     });
     socket.broadcast.emit('newMessage', generateMessage('admin', 'Say hi to the new user'));
-    socket.on('createMessage', (newMessage) => {
+    socket.on('createMessage', (newMessage, callback) => {
         console.log('new message received: ',newMessage);
         io.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
+        callback('Why not.');
         // socket.broadcast.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
     });
     socket.on('createEmail', (newEmail) => {
