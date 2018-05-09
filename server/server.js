@@ -18,7 +18,9 @@ io.on('connection', (socket) => {
         text: 'welcome to this awesome chat app',
         createdAt: new Date().getTime()
     });
-    socket.broadcast.emit('newMessage', generateMessage('admin', 'Say hi to the new user'));
+    socket.on('createLocationMessage', (coords) => {
+        io.emit('newMessage', generateMessage('Admin', `${coords.latitude}, ${coords.longitude}`));
+    });
     socket.on('createMessage', (newMessage, callback) => {
         console.log('new message received: ',newMessage);
         io.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
