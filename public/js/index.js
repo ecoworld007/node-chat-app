@@ -17,7 +17,7 @@ socket.emit('createEmail', {
 });
 
 socket.on('newMessage', function(message){
-    let formattedTime = momemt().format('h:mm a');
+    let formattedTime = moment(message.createdAt).format('h:mm a');
     console.log('new message: ',message);
     let li = jQuery('<li></li>');
     li.text(`${message.from} ${formattedTime}: ${message.text}`)
@@ -25,7 +25,7 @@ socket.on('newMessage', function(message){
 });
 
 socket.on('newLocationMessage', function(message){
-    let formattedTime = momemt(message.createdAt).format('h:mm a');
+    let formattedTime = moment(message.createdAt).format('h:mm a');
     console.log('new message: ',message);
     let li = jQuery('<li></li>');
     let a = jQuery('<a target="_blank">My current location</a>');

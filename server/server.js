@@ -40,5 +40,3 @@ app.use(express.static(publicPath));
 server.listen(PORT, () => {
     console.log('server listening on '+PORT);
 });
-
-
