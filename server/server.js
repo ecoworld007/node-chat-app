@@ -13,12 +13,8 @@ let server = http.createServer(app);
 let io = socketIO(server);
 io.on('connection', (socket) => {
     console.log('new client connected');
-    socket.emit('newEmail',generateMessage('mike@example.com', 'whats up?'));
-    socket.emit('newMessage', {
-        from: 'admin',
-        text: 'welcome to this awesome chat app',
-        createdAt: new Date().getTime()
-    });
+    //socket.emit('newEmail',generateMessage('mike@example.com', 'whats up?'));
+    
     socket.on('createLocationMessage', (coords) => {
         io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     });
@@ -34,10 +30,14 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('client disconnected');
     });
+
     socket.on('join', (params, callback) => {
         let name = params.name;
         let room = params.room;
         if(isRealString(name) && isRealString(room)){
+            socket.join(room);
+            socket.emit('newMessage', generateMessage('admin', 'welcome to this awesome chat app'));
+            socket.broadcast.to(room).emit('newMessage',generateMessage('Admin', `${name} has joined the group`))
             callback();
         }else{
             callback('Name and Room are required input');
