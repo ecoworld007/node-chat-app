@@ -7,5 +7,21 @@ class Users{
         this.users.push(user);
         return user;
     }
+    getUserList(room){
+        let users = this.users.filter(user => user.room == room);
+        let nameArray = users.map(user => user.name);
+        return nameArray;
+    }
+    getUser(id){
+        let user = this.users.filter(user => user.id == id);
+        return user[0];
+    }
+    removeUser(id){
+        let user = this.getUser(id);
+        if(user){
+            this.users = this.users.filter(user => user.id != id);
+        }
+        return user;
+    }
 }
 module.exports = {Users};
