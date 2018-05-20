@@ -17,11 +17,17 @@ let users = new Users();
 io.on('connection', (socket) => {
     console.log('new client connected');
     socket.on('createLocationMessage', (coords) => {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        let user = users.getUser(socket.id);
+        if(user){
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+        }
     });
-    socket.on('createMessage', (newMessage, callback) => {
-        console.log('new message received: ',newMessage);
-        io.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
+    socket.on('createMessage', (message, callback) => {
+        console.log('new message received: ',message);
+        let user = users.getUser(socket.id);
+        if(user && isRealString(message.text)){
+            io.to(user.room).emit('newMessage',generateMessage(message.from, message.text));
+        }
         callback();
     });
     socket.on('createEmail', (newEmail) => {
