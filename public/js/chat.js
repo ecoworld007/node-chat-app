@@ -28,18 +28,9 @@ socket.on('connect', function() {
     console.log('connected to server');
 });
 
-socket.on('disconnect', function() {
-    console.log('disconnected from server');
-});
-
 socket.on('newEmail', function(email){
     console.log('new email',email);
 });
-
-// socket.emit('createEmail', {
-//     from: 'mike@example.com',
-//     text: 'whats up?'
-// });
 
 socket.on('newMessage', function(message){
     let formattedTime = moment(message.createdAt).format('h:mm a');
@@ -65,18 +56,20 @@ socket.on('newLocationMessage', function(message){
     scrollToBottom();
 });
 
-// socket.emit('createMessage', {
-//     from: 'straw hat',
-//     text: 'wanna join the crew'
-// }, (message) => {
-//     console.log('got it.', message);
-// });
+socket.on('updateUserList', function(users){
+    let ol = jQuery('<ol></ol>');
+    users.forEach(function(user){
+        ol.append(jQuery('<li></li>').text(user));
+    });
+    jQuery('#users').html(ol);
+});
 
 jQuery('#message-form').on('submit', function(e){
     e.preventDefault();
+    let params = jQuery.deparam(window.location.search);
     let messageTextBox = jQuery('[name=message]');
     socket.emit('createMessage', {
-        from: 'user',
+        from: params.name,
         text: messageTextBox.val()
     }, function(){
         messageTextBox.val('');

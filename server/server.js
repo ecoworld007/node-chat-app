@@ -5,16 +5,17 @@ const http = require('http');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
+const {Users} = require('./utils/users.js');
 const publicPath = path.join(__dirname, '../public');
 const PORT = process.env.PORT || 3000;
 
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
+let users = new Users();
+
 io.on('connection', (socket) => {
     console.log('new client connected');
-    //socket.emit('newEmail',generateMessage('mike@example.com', 'whats up?'));
-    
     socket.on('createLocationMessage', (coords) => {
         io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     });
@@ -22,13 +23,18 @@ io.on('connection', (socket) => {
         console.log('new message received: ',newMessage);
         io.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
         callback();
-        // socket.broadcast.emit('newMessage',generateMessage(newMessage.from, newMessage.text));
     });
     socket.on('createEmail', (newEmail) => {
         console.log('new email received: ',newEmail);
     });
     socket.on('disconnect', () => {
         console.log('client disconnected');
+        let user = users.removeUser(socket.id);
+        if(user){
+            
+            io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the group`));
+        }
     });
 
     socket.on('join', (params, callback) => {
@@ -36,8 +42,11 @@ io.on('connection', (socket) => {
         let room = params.room;
         if(isRealString(name) && isRealString(room)){
             socket.join(room);
+            users.removeUser(socket.id);
+            users.addUser(socket.id, name, room);
             socket.emit('newMessage', generateMessage('admin', 'welcome to this awesome chat app'));
             socket.broadcast.to(room).emit('newMessage',generateMessage('Admin', `${name} has joined the group`))
+            io.to(room).emit('updateUserList', users.getUserList(room));
             callback();
         }else{
             callback('Name and Room are required input');
