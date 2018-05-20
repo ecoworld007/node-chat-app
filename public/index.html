@@ -7,6 +7,7 @@
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <link rel="stylesheet" href="/css/styles.css">
+        <link id="favicon" rel="shortcut icon" type="image/png" href="/images/chat.png">
     </head>
     <body class="centered-form">
         <div class="centered-form__form">
@@ -16,17 +17,23 @@
                 </div>
                 <div class="form-field">
                     <label>Display name</label>
-                    <input type="text" name="name" autofocus>
+                    <input type="text" name="name"  autofocus required autocomplete="off"/>
                 </div>
                 <div class="form-field">
-                        <label>Chat Room</label>
-                        <input type="text" name="room" autofocus>
-                </div>
+                        <label>Room name</label>
+                        <input type="text" id="room-name" name="room" list="roomList" required autocomplete="off"/>
+                        <datalist id="roomList">
+                          <!-- <option value="Work">
+                          <option value="Friends"> -->
+                        </datalist>
+                      </div>
                 <div class="form-field">
                     <button>Join</button>
                 </div>
                 
             </form>
         </div>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="/js/index.js"></script>
     </body>
 </html>

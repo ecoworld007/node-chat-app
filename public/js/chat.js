@@ -1,5 +1,10 @@
 let socket = io();
 
+var messageCounter = 0;
+var favicon=new Favico({
+    animation:'popFade'
+});
+
 let scrollToBottom = function(){
     let messages = jQuery('#messages');
     let clientHeight = messages.prop('clientHeight');
@@ -17,6 +22,7 @@ let scrollToBottom = function(){
 
 socket.on('connect', function() {
     let params = jQuery.deparam(window.location.search);
+    jQuery('#roomId').text(params.room);
     socket.emit('join', params, function(err){
         if(err){
             alert(err);
@@ -42,6 +48,7 @@ socket.on('newMessage', function(message){
     })
     jQuery('#messages').append(html);
     scrollToBottom();
+    displayMessageCountInTab();
 });
 
 socket.on('newLocationMessage', function(message){
@@ -54,12 +61,19 @@ socket.on('newLocationMessage', function(message){
     })
     jQuery('#messages').append(html);
     scrollToBottom();
+    displayMessageCountInTab();
 });
 
 socket.on('updateUserList', function(users){
+    let params = jQuery.deparam(window.location.search);
     let ol = jQuery('<ol></ol>');
+    let innerText;
     users.forEach(function(user){
-        ol.append(jQuery('<li></li>').text(user));
+        innerText = user;
+        if(user === params.name){
+            innerText += '(*)';
+        }
+        ol.append(jQuery('<li></li>').text(innerText));
     });
     jQuery('#users').html(ol);
 });
@@ -94,3 +108,20 @@ locationButton.on('click', function(){
         alert('unable to fetch location');
     });
 });
+
+function displayMessageCountInTab(){
+    if(!document.hasFocus()){
+      favicon.badge(++messageCounter);
+    }
+  };
+  
+  function clearMessageCount(){
+    messageCounter=0;
+    favicon.badge(messageCounter);
+  };
+  
+  $(window).focus(function(e){
+    if(messageCounter>0){
+      clearMessageCount();
+    }
+  });

@@ -14,6 +14,19 @@ let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
 
+app.get('/rooms',(req,res)=>{
+    var availableRooms = [];
+    var rooms = io.sockets.adapter.rooms;
+    if (rooms) {
+        for (var room in rooms) {
+            if (!rooms[room].sockets.hasOwnProperty(room)) {
+                availableRooms.push(room);
+            }
+        }
+    }
+    res.send(availableRooms);
+  });
+
 io.on('connection', (socket) => {
     console.log('new client connected');
     socket.on('createLocationMessage', (coords) => {
@@ -45,9 +58,15 @@ io.on('connection', (socket) => {
 
     socket.on('join', (params, callback) => {
         let name = params.name;
-        let room = params.room;
+        let room = params.room.toLowerCase();
         if(isRealString(name) && isRealString(room)){
             socket.join(room);
+            let list = users.getUserList(room);
+            for(let index = 0; index < list.length; index++){
+                if(name === list[index]){
+                    return callback("user name already being used");
+                }
+            }
             users.removeUser(socket.id);
             users.addUser(socket.id, name, room);
             socket.emit('newMessage', generateMessage('admin', 'welcome to this awesome chat app'));
